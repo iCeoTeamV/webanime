@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anime Stream</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+    <nav class="bg-white p-4 shadow-md">
+        <div class="container mx-auto flex justify-between">
+            <a href="/" class="text-xl font-bold">Anime Stream</a>
+            <div>
+                <a href="/" class="mx-2">Home</a>
+                <a href="/search" class="mx-2">Search</a>
+                <a href="/admin" class="mx-2">Admin</a>
+            </div>
+        </div>
+    </nav>
+    <div class="container mx-auto mt-8">
+        <div class="flex justify-between items-center mb-4">
+            <h1 class="text-2xl font-bold">Popular Anime</h1>
+            <input type="text" id="search" placeholder="Search..." class="p-2 border rounded">
+        </div>
+        <div id="anime-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- Anime cards will be injected here by JavaScript -->
+        </div>
+    </div>
+    <script>
+        // Fetch anime list from API and display
+        async function fetchAnimeList() {
+            const response = await fetch('/api/anime');
+            const animeList = await response.json();
+            const animeListContainer = document.getElementById('anime-list');
+            animeListContainer.innerHTML = animeList.map(anime => `
+                <div class="bg-white p-4 rounded shadow-md">
+                    <img src="${anime.image}" alt="${anime.title}" class="w-full h-48 object-cover rounded">
+                    <h2 class="mt-2 text-xl font-bold">${anime.title}</h2>
+                    <p>${anime.description}</p>
+                </div>
+            `).join('');
+        }
+
+        document.getElementById('search').addEventListener('input', async (event) => {
+            const query = event.target.value;
+            const response = await fetch(`/api/search?query=${query}`);
+            const searchResults = await response.json();
+            const animeListContainer = document.getElementById('anime-list');
+            animeListContainer.innerHTML = searchResults.map(anime => `
+                <div class="bg-white p-4 rounded shadow-md">
+                    <img src="${anime.image}" alt="${anime.title}" class="w-full h-48 object-cover rounded">
+                    <h2 class="mt-2 text-xl font-bold">${anime.title}</h2>
+                    <p>${anime.description}</p>
+                </div>
+            `).join('');
+        });
+
+        fetchAnimeList();
+    </script>
+</body>
+</html>

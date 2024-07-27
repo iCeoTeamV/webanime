@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+    <nav class="bg-white p-4 shadow-md">
+        <div class="container mx-auto flex justify-between">
+            <a href="/" class="text-xl font-bold">Anime Stream</a>
+            <div>
+                <a href="/" class="mx-2">Home</a>
+                <a href="/search" class="mx-2">Search</a>
+                <a href="/admin" class="mx-2">Admin</a>
+            </div>
+        </div>
+    </nav>
+    <div class="container mx-auto mt-8">
+        <h1 class="text-2xl font-bold">Admin Panel</h1>
+        <form id="anime-form" class="bg-white p-8 rounded shadow-md mt-4">
+            <div class="mb-4">
+                <label for="title" class="block text-gray-700">Title</label>
+                <input type="text" id="title" class="p-2 border rounded w-full">
+            </div>
+            <div class="mb-4">
+                <label for="description" class="block text-gray-700">Description</label>
+                <textarea id="description" class="p-2 border rounded w-full"></textarea>
+            </div>
+            <div class="mb-4">
+                <label for="image" class="block text-gray-700">Image URL</label>
+                <input type="text" id="image" class="p-2 border rounded w-full">
+            </div>
+            <div class="mb-4">
+                <label for="episodes" class="block text-gray-700">Episodes (Comma separated)</label>
+                <input type="text" id="episodes" class="p-2 border rounded w-full">
+            </div>
+            <button type="submit" class="bg-blue-500 text-white p-2 rounded">Add Anime</button>
+        </form>
+        <div id="anime-list" class="mt-8">
+            <!-- Existing anime list will be injected here by JavaScript -->
+        </div>
+    </div>
+    <script>
+        async function fetchAnimeList() {
+            const response = await fetch('/api/anime');
+            const animeList = await response.json();
+            const animeListContainer = document.getElementById('anime-list');
+            animeListContainer.innerHTML = animeList.map(anime => `
+                <div class="bg-white p-4 rounded shadow-md mt-4">
+                    <img src="${anime.image}" alt="${anime.title}" class="w-full h-48 object-cover rounded">
+                    <h2 class="mt-2 text-xl font-bold">${anime.title}</h2>
+                    <p>${anime.description}</p>
+                </div>
+            `).join('');
+        }
+
+        document.getElementById('anime-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const title = document.getElementById('title').value;
+            const description = document.getElementById('description').value;
+            const image = document.getElementById('image').value;
+            const episodes = document.getElementById('episodes').value.split(',').map(episode => ({ title: episode.trim(), id: episode.trim() }));
+
+            await fetch('/api/admin/anime', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ title, description, image, episodes })
+            });
+
+            fetchAnimeList();
+        });
+
+        fetchAnimeList();
+    </script>
+</body>
+</html>

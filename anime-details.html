@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anime Details</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+    <nav class="bg-white p-4 shadow-md">
+        <div class="container mx-auto flex justify-between">
+            <a href="/" class="text-xl font-bold">Anime Stream</a>
+            <div>
+                <a href="/" class="mx-2">Home</a>
+                <a href="/search" class="mx-2">Search</a>
+                <a href="/admin" class="mx-2">Admin</a>
+            </div>
+        </div>
+    </nav>
+    <div class="container mx-auto mt-8">
+        <div id="anime-details" class="bg-white p-8 rounded shadow-md">
+            <!-- Anime details will be injected here by JavaScript -->
+        </div>
+    </div>
+    <script>
+        async function fetchAnimeDetails() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const animeId = urlParams.get('id');
+            const response = await fetch(`/api/anime/${animeId}`);
+            const anime = await response.json();
+            const animeDetailsContainer = document.getElementById('anime-details');
+            animeDetailsContainer.innerHTML = `
+                <img src="${anime.image}" alt="${anime.title}" class="w-full h-64 object-cover rounded">
+                <h1 class="mt-4 text-3xl font-bold">${anime.title}</h1>
+                <p class="mt-2">${anime.description}</p>
+                <h2 class="mt-4 text-2xl font-bold">Episodes</h2>
+                <ul class="mt-2">
+                    ${anime.episodes.map(episode => `
+                        <li><a href="/player?id=${episode.id}" class="text-blue-500">${episode.title}</a></li>
+                    `).join('')}
+                </ul>
+            `;
+        }
+
+        fetchAnimeDetails();
+    </script>
+</body>
+</html>
